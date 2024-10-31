@@ -10,3 +10,10 @@ func main() {
 }
 
 func TestFunc(t *testing.T) {}
+
+func FuncVars(x int) {
+	do := func() {
+		fmt.Println(x)
+	}
+	do()
+}
