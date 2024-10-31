@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/alexkohler/nargs"
+	nargs "github.com/ilius/go-unused-args"
 )
 
 func usage() {
