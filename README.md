@@ -4,7 +4,7 @@ nargs is a Go static analysis tool to find unused arguments in function declarat
 
 ## Installation
 
-    go get -u github.com/alexkohler/nargs/cmd/nargs
+    go get -u github.com/ilius/go-unused-args/cmd/nargs
 
 ## Usage
 
