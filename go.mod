@@ -1,3 +1,3 @@
-module github.com/alexkohler/nargs
+module github.com/ilius/go-unused-args
 
 go 1.21
