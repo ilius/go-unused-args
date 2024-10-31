@@ -59,7 +59,7 @@ func CheckForUnusedFunctionArgs(args []string, flags Flags) (results []string, e
 			continue
 		}
 		ast.Walk(retVis, f)
-		for result, _ := range retVis.resultsSet {
+		for result := range retVis.resultsSet {
 			visitorResult = append(visitorResult, result)
 		}
 		// Due to our analysis, of the ast.File, we may end up getting our results out of order. Sort by line number to keep
@@ -126,16 +126,18 @@ func (v *unusedVisitor) Visit(node ast.Node) ast.Visitor {
 	v.handleStmts(paramMap, stmtList)
 
 	for funcName, used := range paramMap {
-		if !used {
-			if file != nil {
-				if funcDecl != nil && funcDecl.Name != nil {
-					//TODO print parameter vs parameter(s)?
-					//TODO differentiation of used parameter vs. receiver?
-					resStr := fmt.Sprintf("%v:%v %v contains unused parameter %v\n", file.Name(), file.Position(funcDecl.Pos()).Line, funcDecl.Name.Name, funcName)
-					v.resultsSet[resStr] = struct{}{}
-					v.errsFound = true
-				}
-			}
+		if used {
+			continue
+		}
+		if file == nil {
+			continue
+		}
+		if funcDecl != nil && funcDecl.Name != nil {
+			//TODO print parameter vs parameter(s)?
+			//TODO differentiation of used parameter vs. receiver?
+			resStr := fmt.Sprintf("%v:%v %v contains unused parameter %v\n", file.Name(), file.Position(funcDecl.Pos()).Line, funcDecl.Name.Name, funcName)
+			v.resultsSet[resStr] = struct{}{}
+			v.errsFound = true
 		}
 	}
 
