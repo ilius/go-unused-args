@@ -476,6 +476,33 @@ func (v *unusedVisitor) handleFuncLit(paramMap map[string]bool, funcLit *ast.Fun
 	}
 }
 
+func (v *unusedVisitor) getStarSelector(typeExpr ast.Expr) string {
+	starExpr, ok := typeExpr.(*ast.StarExpr)
+	if !ok {
+		return ""
+	}
+
+	selector, ok := starExpr.X.(*ast.SelectorExpr)
+	if !ok {
+		return ""
+	}
+
+	xIdent, ok := selector.X.(*ast.Ident)
+	if !ok {
+		return ""
+	}
+
+	return xIdent.Name + "." + selector.Sel.Name
+}
+
+func (v *unusedVisitor) isTestingT(typeExpr ast.Expr) bool {
+	return v.getStarSelector(typeExpr) == "testing.T"
+}
+
+func (v *unusedVisitor) isTestingB(typeExpr ast.Expr) bool {
+	return v.getStarSelector(typeExpr) == "testing.B"
+}
+
 func (v *unusedVisitor) handleFuncDecl(
 	paramMap map[string]bool,
 	funcDecl *ast.FuncDecl,
@@ -484,9 +511,17 @@ func (v *unusedVisitor) handleFuncDecl(
 	if funcDecl.Body != nil {
 		initialStmts = append(initialStmts, funcDecl.Body.List...)
 	}
+	isTestFunc := strings.HasPrefix(funcDecl.Name.Name, "Test")
+	isBenchmarkFunc := strings.HasPrefix(funcDecl.Name.Name, "Benchmark")
 	if funcDecl.Type != nil {
 		if funcDecl.Type.Params != nil {
-			for _, paramList := range funcDecl.Type.Params.List {
+			for index, paramList := range funcDecl.Type.Params.List {
+				if isTestFunc && v.isTestingT(funcDecl.Type.Params.List[index].Type) {
+					continue
+				}
+				if isBenchmarkFunc && v.isTestingB(funcDecl.Type.Params.List[index].Type) {
+					continue
+				}
 				for _, name := range paramList.Names {
 					if name.Name == "_" {
 						continue

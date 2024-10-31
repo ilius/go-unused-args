@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"testing"
+)
 
 func main() {
 	fmt.Println("Hello world!")
@@ -19,3 +22,5 @@ func newTypePair[K any, V any]() {
 func testIndexListExpr() {
 	newTypePair[int, int]
 }
+
+func TestFunc(t *testing.T) {}
