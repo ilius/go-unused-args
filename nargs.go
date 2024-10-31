@@ -452,13 +452,37 @@ func (v *unusedVisitor) handleFuncLit(paramMap map[string]bool, funcLit *ast.Fun
 	}
 }
 
+func (v *unusedVisitor) isTestingT(typeExpr ast.Expr) bool {
+	starExpr, ok := typeExpr.(*ast.StarExpr)
+	if !ok {
+		return false
+	}
+
+	selector, ok := starExpr.X.(*ast.SelectorExpr)
+	if !ok {
+		return false
+	}
+
+	xIdent, ok := selector.X.(*ast.Ident)
+	if !ok {
+		return false
+	}
+
+	// TODO: check in a map[string]bool of types
+	return xIdent.Name+"."+selector.Sel.Name == "testing.T"
+}
+
 func (v *unusedVisitor) handleFuncDecl(paramMap map[string]bool, funcDecl *ast.FuncDecl, initialStmts []ast.Stmt) []ast.Stmt {
 	if funcDecl.Body != nil {
 		initialStmts = append(initialStmts, funcDecl.Body.List...)
 	}
+	isTestFunc := strings.HasPrefix(funcDecl.Name.Name, "Test")
 	if funcDecl.Type != nil {
 		if funcDecl.Type.Params != nil {
-			for _, paramList := range funcDecl.Type.Params.List {
+			for index, paramList := range funcDecl.Type.Params.List {
+				if isTestFunc && v.isTestingT(funcDecl.Type.Params.List[index].Type) {
+					continue
+				}
 				for _, name := range paramList.Names {
 					if name.Name == "_" {
 						continue
