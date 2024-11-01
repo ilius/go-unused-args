@@ -140,7 +140,13 @@ func (v *unusedVisitor) Visit(node ast.Node) ast.Visitor {
 
 		// TODO print parameter vs parameter(s)?
 		// TODO differentiation of used parameter vs. receiver?
-		resStr := fmt.Sprintf("%v:%v %v contains unused parameter %v\n", file.Name(), file.Position(funcDecl.Pos()).Line, funcDecl.Name.Name, paramName)
+		resStr := fmt.Sprintf(
+			"%v:%v %v contains unused parameter %v\n",
+			file.Name(),
+			file.Position(funcDecl.Pos()).Line,
+			funcDecl.Name.Name,
+			paramName,
+		)
 		v.resultsSet[resStr] = struct{}{}
 		v.errsFound = true
 	}
@@ -371,7 +377,12 @@ func (v *unusedVisitor) handleExprs(paramMap map[string]bool, exprList []ast.Exp
 	return stmtList
 }
 
-func handleFieldList(paramMap map[string]bool, fieldList *ast.FieldList, exprList []ast.Expr, stmtList []ast.Stmt) ([]ast.Expr, []ast.Stmt) {
+func handleFieldList(
+	paramMap map[string]bool,
+	fieldList *ast.FieldList,
+	exprList []ast.Expr,
+	stmtList []ast.Stmt,
+) ([]ast.Expr, []ast.Stmt) {
 	if fieldList == nil {
 		return exprList, stmtList
 	}
@@ -449,7 +460,13 @@ func (v *unusedVisitor) handleFuncLit(paramMap map[string]bool, funcLit *ast.Fun
 			if !used && paramName != "_" {
 				// TODO: this append currently causes things to appear out of order (2)
 				file := v.fileSet.File(funcLit.Pos())
-				resStr := fmt.Sprintf("%v:%v %v contains unused parameter %v\n", file.Name(), file.Position(funcLit.Pos()).Line, funcName.Name, paramName)
+				resStr := fmt.Sprintf(
+					"%v:%v %v contains unused parameter %v\n",
+					file.Name(),
+					file.Position(funcLit.Pos()).Line,
+					funcName.Name,
+					paramName,
+				)
 				v.resultsSet[resStr] = struct{}{}
 			}
 		}
@@ -476,7 +493,11 @@ func (v *unusedVisitor) isTestingT(typeExpr ast.Expr) bool {
 	return xIdent.Name+"."+selector.Sel.Name == "testing.T"
 }
 
-func (v *unusedVisitor) handleFuncDecl(paramMap map[string]bool, funcDecl *ast.FuncDecl, initialStmts []ast.Stmt) []ast.Stmt {
+func (v *unusedVisitor) handleFuncDecl(
+	paramMap map[string]bool,
+	funcDecl *ast.FuncDecl,
+	initialStmts []ast.Stmt,
+) []ast.Stmt {
 	if funcDecl.Body != nil {
 		initialStmts = append(initialStmts, funcDecl.Body.List...)
 	}
