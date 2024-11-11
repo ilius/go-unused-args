@@ -1,23 +1,27 @@
 # nargs
 
-nargs is a Go static analysis tool to find unused arguments in function declarations. Unlike the [unparam](https://github.com/mvdan/unparam) linter, this linter is aggressive by design and may have false positives (see the Examples/FAQ below for more info).       
+nargs is a Go static analysis tool to find unused arguments in function declarations. Unlike the [unparam](https://github.com/mvdan/unparam) linter, this linter is aggressive by design and may have false positives (see the Examples/FAQ below for more info).
 
 ## Installation
 
-    go get -u github.com/ilius/go-unused-args/cmd/nargs
+```
+go install github.com/ilius/go-unused-args/cmd/nargs@latest
+```
 
 ## Usage
 
-Similar to other Go static anaylsis tools (such as golint, go vet), nargs can be invoked with one or more filenames, directories, or packages named by its import path. nargs also supports the `...` wildcard. 
+Similar to other Go static anaylsis tools (such as golint, go vet), nargs can be invoked with one or more filenames, directories, or packages named by its import path. nargs also supports the `...` wildcard.
 
-    nargs [flags] files/directories/packages
-	
+```
+nargs [flags] files/directories/packages
+```
+
 ### Flags
+
 - **-tests** (default true) - Include test files in analysis
 - **-set_exit_status** (default true) - Set exit status to 1 if any issues are found.
 - **-named_returns** (default false) - Report unused named return arguments. This is false by default because named returns can be used to provide context to what's being returned.
 - **-receivers** (default false) - Report unused function receivers. This is false by default because it would otherwise generate a fair number of false positives, depending on your coding standard.
-
 
 ## Purpose
 
@@ -83,14 +87,13 @@ testdata/test.go:43 closureTwo contains unused parameter i
 
 ### How is this different than [unparam](https://github.com/mvdan/unparam)?
 
-* By design, `unparam` errs on the safe side to minimize false positives (ignoring functions that potentially satisfy an interface or function typedef, etc.). `nargs` takes a more aggressive approach and encourages the use of the blank identifier `_` for function parameters that are intentionally not used. 
-* `unparam` operates using the [ssa](https://godoc.org/golang.org/x/tools/go/ssa) package, whereas `nargs` uses a purely AST-based approach. Running unparam on the example file above only finds the issue in `funcOne`. `funcTwo` and `funcThree` are ignored due to potentially implementing an interface. Closures are also ignored.
+- By design, `unparam` errs on the safe side to minimize false positives (ignoring functions that potentially satisfy an interface or function typedef, etc.). `nargs` takes a more aggressive approach and encourages the use of the blank identifier `_` for function parameters that are intentionally not used.
+- `unparam` operates using the [ssa](https://godoc.org/golang.org/x/tools/go/ssa) package, whereas `nargs` uses a purely AST-based approach. Running unparam on the example file above only finds the issue in `funcOne`. `funcTwo` and `funcThree` are ignored due to potentially implementing an interface. Closures are also ignored.
 
 ```Bash
 $ unparam testdata/test.go 
 testdata/test.go:6:28: c is unused
 ```
-
 
 ### How should these issues be fixed?
 
@@ -105,15 +108,12 @@ func funcOne(a int, b int, _ int) int {
 }
 ```
 
-
 ## Other static analysis tools
 
 If you've enjoyed nargs, take a look at my other static anaylsis tools!
 
 - [prealloc](https://github.com/alexkohler/prealloc) - Finds slice declarations that could potentially be preallocated.
 - [nakedret](https://github.com/alexkohler/nakedret) - Finds naked returns.
-- [identypo](https://github.com/alexkohler/identypo) - Finds typos in identifiers (functions, function calls, variables, constants, type declarations, packages, labels) including CamelCased functions, variables, etc. 
+- [identypo](https://github.com/alexkohler/identypo) - Finds typos in identifiers (functions, function calls, variables, constants, type declarations, packages, labels) including CamelCased functions, variables, etc.
 - [unimport](https://github.com/alexkohler/unimport) - Finds unnecessary import aliases.
-- [dogsled](https://github.com/alexkohler/dogsled) - Finds assignments/declarations with too many blank identifiers (e.g. x, _, _, _, := f()).
-
-
+- [dogsled](https://github.com/alexkohler/dogsled) - Finds assignments/declarations with too many blank identifiers (e.g. x, \_, \_, \_, := f()).
